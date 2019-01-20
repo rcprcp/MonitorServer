@@ -1,4 +1,4 @@
-package com.cottagecoders.monitor_server;
+package com.cottagecoders.monitorserver;
 
 public class DBNotImplementedException extends Exception{
   public DBNotImplementedException() {

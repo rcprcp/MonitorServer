@@ -1,4 +1,4 @@
-package com.cottagecoders.monitor_server;
+package com.cottagecoders.monitorserver;
 
 import org.apache.commons.lang3.StringUtils;
 

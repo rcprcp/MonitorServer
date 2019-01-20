@@ -1,4 +1,4 @@
-package com.cottagecoders.monitor_server;
+package com.cottagecoders.monitorserver;
 
 import fi.iki.elonen.NanoHTTPD;
 import org.apache.commons.io.IOUtils;
