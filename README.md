@@ -8,7 +8,7 @@ provides a UI to access the provides a UI to view the information.
 
 ## Installation and use
 * Ensure you have a MySQL instance running and have created a user who can create databases, SELECT and INSERT.  
-* Optionally, create a directory for MonitorServer, and Monitor  `cd bobTest`; cd into that directory.
+* Optionally, create a directory for MonitorServer, and Monitor  for example `mkdir bobTest`; cd into that directory.
 * download the repo: `git clone http://github.com/MonitorServer.git
 * create the monitordb database in MySQL. 
 * after starting the mysql command line you can do something like: 
