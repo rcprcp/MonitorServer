@@ -30,6 +30,8 @@ public class MonitorServer {
 
     config = new Configuration();
 
+    // TODO: test db connectivity here.
+
     ServerSocket serverSocket = null;
     try {
       serverSocket = new ServerSocket(config.getAsInt(Configuration.PORT));

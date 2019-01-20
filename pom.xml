@@ -7,12 +7,24 @@
   <groupId>com.cottagecoders</groupId>
   <artifactId>monitor_server</artifactId>
   <version>1.0-SNAPSHOT</version>
+<packaging>jar</packaging>
+
+  <properties>
+    <java.version>1.8</java.version>
+  </properties>
+
 
   <dependencies>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.7</version>
+    </dependency>
+
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.44</version>
     </dependency>
 
     <dependency>
@@ -38,6 +50,29 @@
           <source>1.8</source>
           <target>1.8</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+              <archive>
+                <manifest>
+                  <mainClass>com.cottagecoders.monitor_server.MonitorServer</mainClass>
+                </manifest>
+              </archive>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
