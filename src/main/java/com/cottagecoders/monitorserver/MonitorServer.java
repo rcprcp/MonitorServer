@@ -42,18 +42,6 @@ public class MonitorServer {
     new HttpServer();
 
     while (true) {
-      LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
-
-      // initialize database connection.
-      DBLogger db;
-      try {
-        db = new DBLogger(queue);
-      } catch (DBNotImplementedException | SQLException ex) {
-        System.out.println("Exception creating database connection." + ex.getMessage());
-        ex.printStackTrace();
-        System.exit(27);
-      }
-
       Socket socket = null;
       try {
         socket = serverSocket.accept();
@@ -61,7 +49,8 @@ public class MonitorServer {
         System.out.println("I/O error: " + ex);
         ex.printStackTrace();
       }
-      new Listener(socket, queue).start();
+      System.out.println("MonitorServer(): accepted connection");
+      new Listener(socket).start();
 
     }
   }

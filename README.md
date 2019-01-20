@@ -25,13 +25,12 @@ Running! Point your browsers to http://Bobs-iMac.local:22277
 DBLogger: Connected to database jdbc:mysql://localhost:3306/
 ````
 ## TODO:
-
+- [ ] UI code needs implementation.  
 - [ ] Fix/enhance the UI
 - [ ] PostgreSQL support
 - [ ] Add some CSS to the html.   :smile: 
 - [ ] More HTML pages - for additional metrics.
 - [ ] Can we use a templating engine for HTML?
-- [ ] UI code needs implementation.  
 - [x] work on DB schema. (V1 is done)
 - [ ] Add sort(s) the the Metrics table (name, elapsed time, hits)
 - [ ] Analytics on the stored data.

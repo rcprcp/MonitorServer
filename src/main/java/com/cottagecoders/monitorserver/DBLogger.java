@@ -107,6 +107,9 @@ public class DBLogger {
       return cache.get(name);
     }
 
+    // TODO: debugging. delete me.
+    System.out.println("lookupNameMapping(): conn " + conn.toString());
+
     lookup.setString(1, name);
     ResultSet rs = lookup.executeQuery();
     if (rs.next()) {
