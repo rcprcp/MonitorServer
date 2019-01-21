@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class Listener extends Thread {
+class Listener extends Thread {
   private Socket socket;
   private LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
 

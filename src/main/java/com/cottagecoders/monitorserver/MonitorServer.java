@@ -10,10 +10,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class MonitorServer {
 
-  public static final String DELIM = "\t";
+  static final String DELIM = "\t";
   // env variable which points to config file.
-  public static Configuration config = null;
-  public static String hostName;
+  static Configuration config = null;
+  static String hostName;
 
   public static void main(String... args) throws IOException {
     // get host name - if that fails, try for the ip address.

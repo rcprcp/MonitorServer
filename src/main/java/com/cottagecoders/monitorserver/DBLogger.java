@@ -12,10 +12,9 @@ import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class DBLogger {
+class DBLogger {
   static final String DELIM = "\t";
-  private static final String DATABASE_NAME = "monitordb";
-  private Connection conn;
+  DBConnection connection;
   private PreparedStatement stmtInsertAppNameMapping;
   private PreparedStatement stmtSelectAppNameMapping;
   private PreparedStatement stmtInsertAppStart;
@@ -28,51 +27,33 @@ public class DBLogger {
 
 
   DBLogger(LinkedBlockingQueue<String> queue) throws DBNotImplementedException, SQLException {
-
-    String jdbcUrl = MonitorServer.config.getAsString(Configuration.JDBC_URL);
-    Properties props = new Properties();
-    props.setProperty("user", MonitorServer.config.getAsString(Configuration.DB_USER));
-    props.setProperty("password", MonitorServer.config.getAsString(Configuration.DB_PASSWORD));
-
-    if (jdbcUrl.toLowerCase().startsWith("jdbc:mysql")) {
-      conn = DriverManager.getConnection(jdbcUrl, props);
-      conn.setAutoCommit(true);
-
-    } else if (jdbcUrl.toLowerCase().startsWith("jdbc:postgres")) {
-      conn = DriverManager.getConnection(jdbcUrl, props);
-
-    } else {
-      System.out.println("DBLogger: Invalid database type: " + jdbcUrl);
-      throw new DBNotImplementedException("Invalid database type " + jdbcUrl);
-    }
-
-    System.out.println("DBLogger: Connected to database " + jdbcUrl);
+  connection = new DBConnection();
 
     // create statement for app name mapping
-    stmtInsertAppNameMapping = conn.prepareStatement("INSERT INTO app_name_mapping (app_name) VALUES(?)",
+    stmtInsertAppNameMapping = connection.getConnection().prepareStatement("INSERT INTO app_name_mapping (app_name) VALUES(?)",
         Statement.RETURN_GENERATED_KEYS
     );
 
     // create statement for method name mapping
-    stmtInsertMethodNameMapping = conn.prepareStatement("INSERT INTO method_name_mapping (method_name) VALUES(?)",
+    stmtInsertMethodNameMapping = connection.getConnection().prepareStatement("INSERT INTO method_name_mapping (method_name) VALUES(?)",
         Statement.RETURN_GENERATED_KEYS
     );
 
     // statement to get method number.
-    stmtSelectMethodNameMapping = conn.prepareStatement(
+    stmtSelectMethodNameMapping = connection.getConnection().prepareStatement(
         "SELECT method_number FROM method_name_mapping WHERE method_name = ?");
 
     // select the id from app_name table
-    stmtSelectAppNameMapping = conn.prepareStatement("SELECT app_number FROM app_name_mapping WHERE app_name = ?");
+    stmtSelectAppNameMapping = connection.getConnection().prepareStatement("SELECT app_number FROM app_name_mapping WHERE app_name = ?");
 
     // insert the app name.
-    stmtInsertAppStart = conn.prepareStatement(
+    stmtInsertAppStart = connection.getConnection().prepareStatement(
         "INSERT INTO app_start_events (app_number, app_start_time, host) VALUES (?, ?, ?)");
 
-    stmtInsertConfigInfo = conn.prepareStatement(
+    stmtInsertConfigInfo = connection.getConnection().prepareStatement(
         "INSERT INTO config (app_number, app_start_time, property_key, property_value) VALUES ( ?, ?, ?, ?)");
 
-    stmtInsertElapsedInfo = conn.prepareStatement(
+    stmtInsertElapsedInfo = connection.getConnection().prepareStatement(
         "INSERT INTO elapsed_events (app_number, app_start_time, elapsed_interval_ns, method_number, " +
             "method_start_sequence, " + "method_end_sequence) VALUES ( ?, ?, ?, ?, ?, ?)");
 
@@ -108,7 +89,7 @@ public class DBLogger {
     }
 
     // TODO: debugging. delete me.
-    System.out.println("lookupNameMapping(): conn " + conn.toString());
+    System.out.println("lookupNameMapping(): connection.getConnection() " + connection.getConnection().toString());
 
     lookup.setString(1, name);
     ResultSet rs = lookup.executeQuery();
