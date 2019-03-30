@@ -1,9 +1,13 @@
 package com.cottagecoders.monitorserver;
 
 import fi.iki.elonen.NanoHTTPD;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
@@ -17,27 +21,92 @@ class HttpServer extends NanoHTTPD {
         Configuration.HTTP_PORT));
   }
 
+  /**
+   * Initial processing of the HTTP request - boilerplate for the HMTL we
+   * will return to the client
+   *
+   * @param session
+   * @return response which also contains the HTML
+   */
   @Override
   public Response serve(IHTTPSession session) {
-    String top = "<html><head><title>MonitorServer</title></head>" +
-        "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/icon?family=Material+Icons\">" +
-        "<link rel=\"stylesheet\" href=\"https://code.getmdl.io/1.3.0/material.indigo-blue.min.css\">" +
-        "<script defer src=\"https://code.getmdl.io/1.3.0/material.min.js\"></script>";
     String queryParams = session.getQueryParameterString();
     String queryString = session.getUri();
-    StringBuilder msg = new StringBuilder(top);
-    if (queryString.startsWith("/config")) {
-      msg.append(dumpConfig());
-    } else if (queryString.startsWith("/apps")) {
-      msg.append(dumpApps());
-    } else {
-      msg.append(dumpInstances());
+    // TODO: Delete debugging code.
+//    System.out.println("queryParms: " + queryParams);
+    System.out.println("queryString: " + queryString);
+
+    if(queryString.startsWith("/css/") || queryString.startsWith("/js/")) {
+      return sendFile(queryString);
     }
-    return newFixedLengthResponse(msg + "</body></html>\n");
+
+    String boilerPlate = boilerPlate();
+    String msg = "";
+    if (queryString.startsWith("/config")) {
+      msg = boilerPlate.replaceAll("@@TITLE@@", "Config");
+      msg = msg.replaceAll("@@CONTENT@@", dumpConfig());
+
+    } else if (queryString.startsWith("/apps")) {
+      msg = boilerPlate.replaceAll("@@TITLE@@", "Apps");
+      msg = msg.replaceAll("@@CONTENT@@", dumpApps());
+
+    } else if (queryString.startsWith("/instances")) {
+      msg = boilerPlate.replaceAll("@@TITLE@@", "Instances");
+      msg = msg.replaceAll("@@CONTENT@@", dumpInstances());
+
+    } else {
+      msg = boilerPlate.replaceAll("@@TITLE@@", "Help");
+      String content = "<p/><a href='apps'>apps</a> - display all the applications";
+      content += "<p/><a href='config'>config</a> - display all the configuration data";
+      content += "<p/><a href='instances'>instances</a> - display all the executions of an app";
+      msg = msg.replaceAll("@@CONTENT@@", content);
+
+    }
+    return newFixedLengthResponse(msg);
   }
 
+  private Response sendFile(String fileName){
+
+    String mimeType = "text/html";
+    if(fileName.startsWith("/css")) {
+      mimeType = "text/css";
+    } else if(fileName.startsWith("/js")) {
+      mimeType = "application/javascript";
+    }
+
+    String html = "";
+    try( InputStream is = HttpServer.class.getResourceAsStream(fileName)) {
+      html = IOUtils.toString(is, Charset.defaultCharset());
+    } catch(IOException ex) {
+      System.out.println("Exception: " + ex.getMessage());
+      ex.printStackTrace();
+      System.exit(27);
+    }
+    Response resp = newFixedLengthResponse(html);
+    resp.setMimeType(mimeType);
+    return resp;
+  }
+
+  private String boilerPlate() {
+    String html = "";
+    try (InputStream is = ClassLoader.getSystemResourceAsStream("index.html")) {
+      html = IOUtils.toString(is, Charset.defaultCharset());
+
+    } catch(IOException ex) {
+      System.out.println("Exception: " + ex.getMessage());
+      ex.printStackTrace();
+      System.exit(27);
+    }
+    return html;
+  }
+
+  /**
+   * create the HTML to display listing all the instances
+   * of a process running.
+   * @return HTML
+   */
   private String dumpInstances() {
-    StringBuilder s = new StringBuilder(title("Instances"));
+    StringBuilder s = new StringBuilder();
     try {
       DBReader dbr = new DBReader();
       List<ImmutablePair<Long, Long>> ins = dbr.getInstances();
@@ -58,7 +127,7 @@ class HttpServer extends NanoHTTPD {
   }
 
   private String dumpConfig() {
-    StringBuilder s = new StringBuilder(title("Config"));
+    StringBuilder s = new StringBuilder();
     try {
       DBReader dbr = new DBReader();
       List<ImmutablePair<Long, Long>> ins = dbr.getInstances();
@@ -85,17 +154,15 @@ class HttpServer extends NanoHTTPD {
   }
 
   private String dumpApps() {
-    String s = title("Apps");
-    return s;
+    return "Apps";
   }
 
-  private String title(String name) {
-    String s = "<body><br/><center><h1>";
-    s += name.trim();
-    s += "</h1></center><br/><br/>";
-    return s;
-  }
-
+  /**
+   * create beginning of html table
+   *
+   * @param title Table title.
+   * @return
+   */
   private String startTable(String title) {
     return String.format("<table><th>%s</th>", title);
   }

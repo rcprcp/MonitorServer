@@ -41,7 +41,7 @@ public class MonitorServer {
 
     new HttpServer();
 
-    while (true) {
+    while (true) {  //NOSONAR:  don't need an end condition on this loop.
       Socket socket = null;
       try {
         socket = serverSocket.accept();
@@ -49,9 +49,10 @@ public class MonitorServer {
         System.out.println("I/O error: " + ex);
         ex.printStackTrace();
       }
-      System.out.println("MonitorServer(): accepted connection");
-      new Listener(socket).start();
-
+      if(socket != null) {
+        System.out.println("MonitorServer(): accepted connection");
+        new Listener(socket).start();
+      }
     }
   }
 }
